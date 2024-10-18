@@ -14,3 +14,4 @@ that you have installed the package as explained in the
 
    ../code/examples/quickstart.ipynb
    ../code/examples/detailed.ipynb
+   ../code/examples/downstream_analysis.ipynb
