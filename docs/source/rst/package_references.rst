@@ -30,7 +30,7 @@ Package References
 |                      |                                                                                   |
 |                      | .. image:: https://img.shields.io/pypi/pyversions/kgw.svg                         |
 |                      |    :target: https://pypi.org/project/kgw                                          |
-|                      |    :alt: Python versions: 3.6, 3.7. 3.8 |                                         |
+|                      |    :alt: Python versions: 3.6, 3.7, 3.8, 3.9, 3.10, 3.11, 3.12 |                  |
 |                      |                                                                                   |
 |                      | .. image:: https://img.shields.io/pypi/status/kgw.svg                             |
 |                      |    :target: https://pypi.org/project/kgw                                          |

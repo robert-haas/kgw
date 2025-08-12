@@ -132,7 +132,7 @@ def sqlite_to_schema(db_filepath, schema_filepath, node_type_to_color=None):
         edge_data = list(rows)
 
         # Graph
-        g = nx.DiGraph()
+        g = nx.MultiDiGraph()
         for node_type, cnt_instances in node_data:
             size = cnt_instances
             color = node_type_to_color.get(node_type, None)
@@ -149,10 +149,11 @@ def sqlite_to_schema(db_filepath, schema_filepath, node_type_to_color=None):
             hover = (
                 f"Edge type: {edge_type}\n"
                 f"Source: {source_type}\n"
-                f"Target: {target_type})\n\n"
+                f"Target: {target_type}\n\n"
                 f"Number of instances: {cnt_instances}"
             )
-            g.add_edge(source_type, target_type, size=size, color=color, hover=hover)
+            label = edge_type
+            g.add_edge(source_type, target_type, size=size, color=color, hover=hover, label=label, label_color="gray")
 
         # Plot
         fig = gv.d3(
@@ -168,6 +169,7 @@ def sqlite_to_schema(db_filepath, schema_filepath, node_type_to_color=None):
             node_hover_neighborhood=True,
             use_edge_size_normalization=True,
             edge_size_normalization_max=4,
+            edge_label_data_source="label",
             many_body_force_strength=-3000,
             zoom_factor=1.0,
         )

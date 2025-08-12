@@ -59,6 +59,7 @@ def test_projects_latest(workdir):
         kgw.biomedicine.Oregano,
         kgw.biomedicine.PrimeKg,
         kgw.biomedicine.MonarchKg,
+        kgw.biomedicine.Hetionet,
     ]
     tasks = []
     for project_class in project_classes:

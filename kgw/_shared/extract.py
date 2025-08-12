@@ -1,3 +1,4 @@
+import bz2
 import hashlib
 import math
 import os
@@ -38,6 +39,12 @@ def get_file_size(filepath):
     except FileNotFoundError:
         size = 0
     return size
+
+
+def extract_bz2(filepath):
+    out_filepath, _ = os.path.splitext(filepath)
+    with bz2.open(filepath, 'rb') as f_in, open(out_filepath, 'wb') as f_out:
+        f_out.write(f_in.read())
 
 
 def extract_tar_gz(filepath):
@@ -264,6 +271,17 @@ def get_metadata_from_primekg():
     )
     response = get_request_with_retries(url)
     data = response.json()
+    return data
+
+
+def get_metadata_from_hetionet():
+    # Caution: Uses hard coded data because there is only one version
+    data = {
+        "hetionet-v1.0.json.bz2": {
+            "url": "https://github.com/hetio/hetionet/raw/refs/heads/main/hetnet/json/hetionet-v1.0.json.bz2",
+            "md5": "cd6268d361592de9d2b2f4639a34a3c7",
+        }
+    }
     return data
 
 
