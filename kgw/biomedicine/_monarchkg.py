@@ -188,11 +188,8 @@ class CreateSqliteFile(_shared.tasks.ReportingTask):
     def _remove_decompressed_input_files(self):
         nodes_filepath = self.input()["csv_files"]["nodes_file"].path
         edges_filepath = self.input()["csv_files"]["edges_file"].path
-        for filepath in (nodes_filepath, edges_filepath):
-            try:
-                os.remove(filepath)
-            except Exception:
-                pass
+        _shared.extract.delete_file(nodes_filepath)
+        _shared.extract.delete_file(edges_filepath)
 
 
 class MonarchKg(_shared.base.Project):

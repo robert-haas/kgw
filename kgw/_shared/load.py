@@ -153,7 +153,15 @@ def sqlite_to_schema(db_filepath, schema_filepath, node_type_to_color=None):
                 f"Number of instances: {cnt_instances}"
             )
             label = edge_type
-            g.add_edge(source_type, target_type, size=size, color=color, hover=hover, label=label, label_color="gray")
+            g.add_edge(
+                source_type,
+                target_type,
+                size=size,
+                color=color,
+                hover=hover,
+                label=label,
+                label_color="gray",
+            )
 
         # Plot
         fig = gv.d3(
@@ -177,6 +185,13 @@ def sqlite_to_schema(db_filepath, schema_filepath, node_type_to_color=None):
 
 
 def sqlite_to_schema_compact(db_filepath, schema_filepath, node_type_to_color=None):
+    # Some KGs have an unusually large number of different edge types.
+    # The visualization would have a lot of arrows between any pair of
+    # node types. To make it tidier, all parallel arrows are condensed
+    # into a single arrow, and a list of all edge types that the arrow
+    # represents can be seen when hovering over it. This representation
+    # deviates slightly from the usual way to display a graph schema
+    # but conveys the same information.
     if node_type_to_color is None:
         node_type_to_color = {}
 

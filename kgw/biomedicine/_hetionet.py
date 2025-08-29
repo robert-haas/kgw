@@ -1,4 +1,3 @@
-import csv
 import os
 import sqlite3
 
@@ -6,7 +5,6 @@ import luigi
 import orjson
 
 from .. import _shared
-from .._shared.extract import is_informative_value
 
 
 class MetadataFetcher:
@@ -144,9 +142,7 @@ class CreateSqliteFile(_shared.tasks.ReportingTask):
             source_id = str(item["source_id"][1])
             target_id = str(item["target_id"][1])
             edge_type = item["kind"]
-            edge_properties = {
-                "direction": item["direction"]
-            }
+            edge_properties = {"direction": item["direction"]}
             edge_properties.update(item["data"])
             edge_properties_str = orjson.dumps(edge_properties).decode("utf-8")
             edge = (source_id, target_id, edge_type, edge_properties_str)

@@ -32,11 +32,25 @@ def workdir():
 @pytest.fixture(
     params=[
         (
+            "ckg",
+            kgw.biomedicine.Ckg,
+            kgw.biomedicine.Ckg.get_versions()[-1],
+            14_543_042,
+            188_266_233,
+        ),
+        (
             "hald",
             kgw.biomedicine.Hald,
             kgw.biomedicine.Hald.get_versions()[-1],
             12_257,
             116_495,
+        ),
+        (
+            "monarchkg",
+            kgw.biomedicine.MonarchKg,
+            kgw.biomedicine.MonarchKg.get_versions()[-1],
+            1_028_155,
+            11_076_689,
         ),
         (
             "oregano",
@@ -51,20 +65,6 @@ def workdir():
             kgw.biomedicine.PrimeKg.get_versions()[-1],
             129_375,
             8_100_498,
-        ),
-        (
-            "monarchkg",
-            kgw.biomedicine.MonarchKg,
-            kgw.biomedicine.MonarchKg.get_versions()[-1],
-            1_028_155,
-            11_076_689,
-        ),
-        (
-            "ckg",
-            kgw.biomedicine.Ckg,
-            kgw.biomedicine.Ckg.get_versions()[-1],
-            14_543_042,
-            188_266_233,
         ),
     ]
 )

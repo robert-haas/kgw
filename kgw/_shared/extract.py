@@ -3,6 +3,7 @@ import hashlib
 import math
 import os
 import re
+import shutil
 import subprocess
 import tarfile
 import time
@@ -23,7 +24,23 @@ def run_shell_command(command):
 
 
 def create_dir(dirpath):
-    os.makedirs(dirpath, exist_ok=True)
+    try:
+        os.makedirs(dirpath, exist_ok=True)
+    except Exception as e:
+        msg = f"Failed to create directory '{dirpath}': {e}"
+        raise Exception(msg)
+
+
+def move_file(filepath1, filepath2):
+    msg = f"Failed to move file '{filepath1}'.\n"
+    if not os.path.isfile(filepath1):
+        msg = "Source file does not exist."
+        raise FileNotFoundError(msg)
+    try:
+        os.makedirs(os.path.dirname(filepath2), exist_ok=True)
+        shutil.move(filepath1, filepath2)
+    except Exception:
+        raise Exception(msg)
 
 
 def delete_file(filepath):
@@ -31,6 +48,27 @@ def delete_file(filepath):
         os.remove(filepath)
     except OSError:
         pass
+
+
+def delete_empty_directory(dirpath):
+    msg = f"Failed to delete directory '{dirpath}'.\n"
+    try:
+        os.rmdir(dirpath)
+    except FileNotFoundError:
+        msg += "Directory not found."
+        raise FileNotFoundError(msg)
+    except NotADirectoryError:
+        msg += "The path is not a directory."
+        raise NotADirectoryError(msg)
+    except PermissionError:
+        msg += "Permission denied."
+        raise PermissionError(msg)
+    except OSError as e:
+        if "Directory not empty" in str(e):
+            msg += "Directory is not empty."
+        else:
+            msg += str(e)
+        raise OSError(msg)
 
 
 def get_file_size(filepath):
@@ -43,7 +81,7 @@ def get_file_size(filepath):
 
 def extract_bz2(filepath):
     out_filepath, _ = os.path.splitext(filepath)
-    with bz2.open(filepath, 'rb') as f_in, open(out_filepath, 'wb') as f_out:
+    with bz2.open(filepath, "rb") as f_in, open(out_filepath, "wb") as f_out:
         f_out.write(f_in.read())
 
 
@@ -90,7 +128,8 @@ def has_internet_connection():
 
 def ensure_internet_connection():
     if not has_internet_connection():
-        raise Exception("No internet connection.")
+        msg = "No internet connection."
+        raise Exception(msg)
 
 
 def get_remote_file_size(url):
@@ -282,6 +321,32 @@ def get_metadata_from_hetionet():
             "md5": "cd6268d361592de9d2b2f4639a34a3c7",
         }
     }
+    return data
+
+
+def get_metadata_from_pharmebinet(version):
+    # Caution: Uses hard coded data because there are only two versions and they differ in file structure
+    if version == "1.0":
+        data = {
+            "pharmebinet_tsv_2022_08_19_v2.tar.gz": {
+                "version": version,
+                "date": "2022-08-19",
+                "url": "https://zenodo.org/records/7011027/files/pharmebinet_tsv_2022_08_19_v2.tar.gz?download=1",
+                "md5": "92205cb21f4a73275218c2e7213724eb",
+            }
+        }
+    elif version == "2.0":
+        data = {
+            "pharmebinet_tsv_24_02_06.zip": {
+                "version": version,
+                "date": "2024-02-06",
+                "url": "https://pharmebi.net/download/pharmebinet_tsv_24_02_06.zip",
+                "md5": "98a7559c37b01a16302e682bba9392ae",
+            }
+        }
+    else:
+        msg = f'Version "{version}" is not valid.'
+        raise ValueError(msg)
     return data
 
 

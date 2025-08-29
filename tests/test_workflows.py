@@ -9,38 +9,53 @@ from . import utils
 
 
 def test_package_api(workdir):
-    # Version
-    version = kgw.__version__
-    assert isinstance(version, str)
-    assert "." in version
+    # Package version
+    pkg_version = kgw.__version__
+    assert isinstance(pkg_version, str)
+    assert "." in pkg_version
 
-    # Use the project classes with various arguments
+    # Project classes
+    all_project_classes = [
+        kgw.biomedicine.Ckg,
+        kgw.biomedicine.Hald,
+        kgw.biomedicine.Hetionet,
+        kgw.biomedicine.MonarchKg,
+        kgw.biomedicine.Oregano,
+        kgw.biomedicine.PharMeBINet,
+        kgw.biomedicine.PrimeKg,
+    ]
+
+    # Project instances
     version = "latest"
-    hald = kgw.biomedicine.Hald(version, workdir)
-    oregano = kgw.biomedicine.Oregano(version, workdir)
-    primekg = kgw.biomedicine.PrimeKg(version, workdir)
-    monarchkg = kgw.biomedicine.MonarchKg(version, workdir)
-    ckg = kgw.biomedicine.Ckg(version, workdir)
-    with pytest.raises(ValueError):
-        kgw.biomedicine.Hald("nonsense", workdir)
-    with pytest.raises(TypeError):
-        kgw.biomedicine.Hald(version, 123)
+    all_project_instances = [
+        proj_cls(version, workdir) for proj_cls in all_project_classes
+    ]
 
-    # Fetch project versions
-    for proj in [hald, oregano, primekg, monarchkg, ckg]:
+    # Test argument parsing of the project class constructor
+    for proj_cls in all_project_classes:
+        with pytest.raises(ValueError):
+            proj_cls("nonsense", workdir)
+        with pytest.raises(TypeError):
+            proj_cls(version, 123)
+
+    # Test fetching project versions
+    for proj in all_project_instances:
         versions = proj.get_versions()
         assert isinstance(versions, list)
         for v in versions:
             assert isinstance(v, str)
             assert len(v) > 0
 
-    # Use the run function with various argument combinations
+    # Test the run function with various argument combinations
+    hald = kgw.biomedicine.Hald(version, workdir)
+    oregano = kgw.biomedicine.Oregano(version, workdir)
     for workflow in [hald, [hald, oregano], (hald, oregano), set([hald, oregano])]:
         kgw.run(workflow)
         kgw.run(workflow, 3)
         kgw.run(workflow, 3, True)
         kgw.run(workflow=workflow, num_workers=42, verbose=False)
 
+    # Test argument parsing of the run function
     for val in [3.14, "hi"]:
         with pytest.raises(TypeError):
             kgw.run(val)
@@ -52,17 +67,18 @@ def test_package_api(workdir):
         kgw.run([])
 
 
-def test_projects_latest(workdir):
-    # All methods of small enough projects
-    project_classes = [
-        kgw.biomedicine.Hald,
-        kgw.biomedicine.Oregano,
-        kgw.biomedicine.PrimeKg,
-        kgw.biomedicine.MonarchKg,
-        kgw.biomedicine.Hetionet,
+def test_entire_etl_pipeline_on_latest_project_versions(workdir):
+    specification = [
+        # (kgw.biomedicine.Ckg, True),
+        (kgw.biomedicine.Hald, False),
+        (kgw.biomedicine.Hetionet, False),
+        # (kgw.biomedicine.MonarchKg, False),
+        # (kgw.biomedicine.Oregano, False),
+        (kgw.biomedicine.PharMeBINet, True),
+        # (kgw.biomedicine.PrimeKg, False),
     ]
     tasks = []
-    for project_class in project_classes:
+    for project_class, too_large_kg in specification:
         nonsense_version = -123
         with pytest.raises(ValueError) as excinfo:
             proj = project_class(nonsense_version, workdir)
@@ -70,26 +86,23 @@ def test_projects_latest(workdir):
         assert str(excinfo.value).startswith(msg)
 
         proj = project_class("latest", workdir)
-        proj.to_sqlite()
+
+        # Output formats tested on all KGs
         proj.to_statistics()
         proj.to_schema()
-        proj.to_sql()
-        proj.to_csv()
-        proj.to_jsonl()
-        proj.to_graphml()
+        proj.to_sqlite()
         proj.to_metta(representation="spo")
         proj.to_metta(representation="properties_aggregated")
         proj.to_metta(representation="properties_expanded")
-        tasks.append(proj)
 
-    # Some methods of too large projects
-    ckg = kgw.biomedicine.Ckg("latest", workdir)
-    ckg.to_statistics()
-    ckg.to_schema()
-    ckg.to_metta(representation="spo")
-    ckg.to_metta(representation="properties_aggregated")
-    ckg.to_metta(representation="properties_expanded")
-    tasks.append(ckg)
+        # Output formats tested only if a KG is not too large,
+        # since it would take excessive time and storage otherwise
+        if not too_large_kg:
+            proj.to_sql()
+            proj.to_csv()
+            proj.to_jsonl()
+            proj.to_graphml()
+        tasks.append(proj)
 
     success = kgw.run(tasks)
     assert success, "A part of the workflow failed"

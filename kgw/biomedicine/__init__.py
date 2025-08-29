@@ -5,6 +5,7 @@ from ._hald import Hald
 from ._hetionet import Hetionet
 from ._monarchkg import MonarchKg
 from ._oregano import Oregano
+from ._pharmebinet import PharMeBINet
 from ._primekg import PrimeKg
 
 
@@ -14,5 +15,6 @@ __all__ = [
     "Hetionet",
     "MonarchKg",
     "Oregano",
+    "PharMeBINet",
     "PrimeKg",
 ]

@@ -213,6 +213,8 @@ class Hald(_shared.base.Project):
     }
 
     def to_schema(self):
+        # HALD has an unusually large number of different edge types,
+        # therefore a more compact schema representation is used for it.
         tasks = [
             _shared.tasks.CreateCompactSchemaFile(
                 self.dirpath,

@@ -9,7 +9,7 @@ domains might get added. Contributions are welcome and encouraged!
 
 """
 
-__version__ = "0.2.0"
+__version__ = "0.2.1"
 
 __all__ = [
     "biomedicine",
